@@ -1,10 +1,13 @@
 import React from "react"
-import { Link, Redirect } from 'react-router-dom';
+import { reactDom as reactDom, Redirect } from 'react-router-dom';
 import Login from './element/login';
 import Register from './element/register';
 import { BiLogOut } from 'react-icons/bi';
+import JobItem from './element/database';
+import { Firebase } from './App';
+
 function Back(props) {
-  return <div><br /><Link  to={"/logout"} style={{position:"fixed", bottom:"0px",left:"-180px"}}></Link></div>;
+  return <div><br /><reactDom  to={"/logout"} style={{position:"fixed", bottom:"0px",left:"-180px"}}></reactDom></div>;
 }
 
 class Template extends React.Component { //template to be used with most pages
@@ -19,6 +22,24 @@ class Template extends React.Component { //template to be used with most pages
 }
 
 class Dashboard extends React.Component { //dashboard
+    constructor(){
+      super();
+      this.state = {
+        itemArray: new Array()
+      };
+
+    };
+    
+    async componentDidMount(){
+      Firebase.database().ref('/job').once('value').then((data) => { //logs user in and fetches data from DB
+  
+        let dataArray = new Array();
+        // {key: e.key, data:e.val()}
+        data.forEach(e=>{let database = e.val(); dataArray.push(<JobItem id={e.key} location={database.location} date={database.date} pay={database.pay} />)});
+        this.setState({itemArray: dataArray});
+    });
+    };
+
     render() {
       if (!localStorage.getItem('uid')) return(
         <Redirect to="/login" />
@@ -31,10 +52,13 @@ class Dashboard extends React.Component { //dashboard
           <div class="child">
             <center>
           <h3>Welcome back {localStorage.getItem('username')}!</h3>
-          <h6>Test</h6>
+          <h1>Jobs: </h1>
+
+        {this.state.itemArray}
+
 
           </center>
-          <div><br /><Link  to={"/logout"} style={{position:"fixed", bottom:"0px",left:"-180px"}}><BiLogOut className="logout"/></Link></div>
+          <div><br /><reactDom  to={"/logout"} style={{position:"fixed", bottom:"0px",left:"-180px"}}><BiLogOut className="logout"/></reactDom></div>
           </div>
         <Back />
 
@@ -56,8 +80,8 @@ class Dashboard extends React.Component { //dashboard
           <h3>Please login or register:</h3>
             </center>
           <center>
-          <Link to={"/login"}><button class="button1" type="submit">Login</button></Link> <br/>
-          <Link to={"/register"}><button class="button1" type="submit">Register</button></Link>
+          <reactDom to={"/login"}><button class="button1" type="submit">Login</button></reactDom> <br/>
+          <reactDom to={"/register"}><button class="button1" type="submit">Register</button></reactDom>
           </center>
           </div>
         <Back />
